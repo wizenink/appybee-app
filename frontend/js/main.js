@@ -8,10 +8,8 @@ $(function(){
         crossDomain: true,
         url: 'http://10.126.89.30:3000/colmenas/' + form_data['id_colmena'],
         success: function(data) {
-            console.log(data);
             var html = '';
             for(var i = 0; i < data.length; i++){
-              console.log(data[i]);
               html += '<tr>' +
                       '<td>' + data[i].idCOLMENA + '</td>'+
                       '<td>' + data[i].PESO + '</td>'+

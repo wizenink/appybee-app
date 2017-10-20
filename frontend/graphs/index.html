@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+    <style>
+
+      .arc text {
+        font: 10px sans-serif;
+        text-anchor: middle;
+      }
+
+      .arc path {
+        stroke: #fff;
+      }
+      body {
+        font-family: sans-serif;
+      }
+      text {
+        text-shadow: 1px 1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, -1px -1px 0 #fff;
+      }
+
+</style>
+    </style>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+    <svg width="960" height="500"></svg>
+    <script type="text/javascript">
+      var url = 'http://10.126.89.30:3000/enfermedades/';
+      
+      d3.queue()
+          .defer(d3.json, url)
+          .await(function(error, data) {
+
+            var svg = d3.select("svg"),
+                width = +svg.attr("width"),
+                height = +svg.attr("height"),
+                radius = Math.min(width, height) / 2,
+                g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+            
+            var nested = d3.nest()
+                .key(function(d){ return d.NOMBRE })
+                .entries(data)
+  
+            var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+            var pie = d3.pie()
+                .sort(null)
+                .value(function(d) { return d.values.length; });
+
+            var path = d3.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+            var label = d3.arc()
+                .outerRadius(radius - 40)
+                .innerRadius(radius - 40);
+
+            var arc = g.selectAll(".arc")
+              .data(pie(nested))
+              .enter().append("g")
+                .attr("class", "arc");
+
+            arc.append("path")
+                .attr("d", path)
+                .attr("fill", function(d) { return color(d.data.key); });
+
+            var labels = g.selectAll(".arc-labels")
+              .data(pie(nested))
+              .enter().append("g")
+                .attr("class", "arc-labels");
+              
+            labels.append("text")
+                .attr("transform", function(d) { return "translate(" + label.centroid(d) + ")"; })
+                .attr("dy", "0.35em")
+                .text(function(d) { return d.data.key + ": " + d.data.values.length / data.length * 100 + "%"});
+      });
+    </script>
+  </body>
+</html>
